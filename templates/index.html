@@ -1,9 +1,17 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    <div class="mb-3">
-        <label for="imgFile" class="form-label">Upload Your Image</label>
-        <input class="form-control form-control-lg" id="imgFile" type="file">
-    </div>
-    <div></div>
+    <!-- Upload input  -->
+    <form action="/" method="post" enctype="multipart/form-data"> 
+        <div class="mb-3">
+            <label for="imgFile" class="form-label">Upload Your Image</label>
+            <input class="form-control form-control-lg" name="imgFile" id="imgFile" type="file">
+            <button class="btn btn-primary" type="submit">Upload</button>
+        </div>
+    </form>
+    <!-- Show the uploaded image -->
+    {% if imgFile %}
+    <div>{{imgFile}}</div>
+    {% endif %}
+
 {% endblock %}

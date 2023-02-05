@@ -23,7 +23,6 @@ def index():
             return redirect(request.url)
         
         imgFile = request.files['imgFile']
-        print(f"filename: {imgFile.filename}")
 
         # If user doesn't select a file, the browser submits an empty file without a filename
         if imgFile.filename == '':

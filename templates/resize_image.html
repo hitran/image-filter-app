@@ -2,20 +2,35 @@
 
 {% block body %}
 
-
-
-<form action="/upload" method="post" enctype="multipart/form-data">
-
-    <p><b>Resize size:</b></p>
-    <div class="mb-3">
-        <label for="height">Height</label>
-        <input required type="number" id="height" min="1">
-        <label for="width">Width</label>
-        <input required type="number" id="width" min="1">
+    <div class="image-snippet text-center">
+        <img class="uploaded-image mb-2" src={{imageSrc}}>
+        <p class="text-success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+              </svg>
+            File uploaded
+        </p>
     </div>
 
-    <div>
-        <input class="btn btn-primary" type="submit" value="Resize Image">
+    <form action="/resize-image" method="post">
+        <h3 class="mb-3 text-center">Width x Height</h3>
+        <div class="mb-3 d-flex justify-content-between">
+            <input class="form-control form-control-md mx-1" required type="number" id="width" name="height" min="1">
+            <span><b>  X  </b></span>
+            <input class="form-control form-control-md mx-1" required type="number" id="height" name="width" min="1">
+        </div>
+        <div class="mb-3">
+            <input type="text" class="visually-hidden" name="image" value={{imageName}}>
+        </div>
+        <div class="mb-3 text-center">
+            <input class="btn btn-dark btn-lg" type="submit" value="Generate Thumbnail">
+        </div>
+    </form>
+
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+        {{error}}
     </div>
-</form>
+    {% endif %}
+
 {% endblock %}

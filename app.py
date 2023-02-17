@@ -8,11 +8,22 @@ app = Flask(__name__)
 UPLOAD_FOLDER = './uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-@app.route('/', methods=["GET", "POST"])
+@app.route('/')
 def index():
-    if request.method == "GET":
-        return render_template("index.html")
-    else:
+    return render_template("index.html")
+
+@app.route('/uploads/<filename>')
+def send_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/upload', methods=["GET","POST"])
+def upload():
+    if request.method == "POST":
+        
+        # Check if file exists
+        if not request.files['image']:
+            return render_template("index.html", error = "No file received")
+        
         file = request.files['image']
         filename = secure_filename(file.filename)
 
@@ -23,11 +34,11 @@ def index():
         imageSrc = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(imageSrc)
 
-        return render_template("index.html", imageName = filename, imageSrc = imageSrc)
+        return render_template("resize_image.html", imageName = filename, imageSrc = imageSrc)
+    else:
+        return redirect("/")
 
-@app.route('/uploads/<filename>')
-def send_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 
 @app.route('/resize-image', methods=["GET", "POST"])
 def resize_image():
@@ -36,13 +47,13 @@ def resize_image():
 
         # Check if values exists:
         if not request.form.get("width"):
-            return "Missing Width Input"
+            return render_template("resize-image.html", error = "Missing Width Input")
 
         if not request.form.get("height"):
-            return "Missing Height Input"
+            return render_template("resize-image.html", error = "Missing Height Input")
         
         if not request.form.get("image"):
-            return "No file received"
+            return render_template("resize-image.html", error = "No file received")
         
         width = request.form.get("width")
         height = request.form.get("height")
@@ -58,7 +69,7 @@ def resize_image():
             if not os.path.exists(app.config['UPLOAD_FOLDER']):
                 os.makedirs(app.config['UPLOAD_FOLDER'])
             
-            thumbnail_filename = f"{height}x{width}_{filename}"
+            thumbnail_filename = f"{width}x{height}_{filename}"
             image.save(os.path.join(app.config['UPLOAD_FOLDER'], thumbnail_filename))
         return send_file(thumbnail_filename)
     else:

@@ -1,38 +1,20 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<h1 class="">Image Processing Tool</h1>
-<form action="/" method="post" enctype="multipart/form-data">
-    <div class="mb-3">
-        <label for="image" class="form-label">Upload Image</label>
-        <input class="form-control" id="image" name="image" type="file">
+<h1 class="text-center mb-5">Upload Your Image</h1>
+<form action="/upload" method="post" enctype="multipart/form-data">
+    <div class="mb-5 mx-auto">
+        <input class="form-control form-control-lg" id="image" name="image" type="file">
     </div>
-    <div class="mb-3">
-        <input class="btn btn-primary" type="submit" value="Upload">
+    <div class="mb-5 text-center">
+        <input class="btn btn-dark btn-lg" type="submit" value="Upload">
     </div>
 </form>
 
-<!-- Display image if image is uploaded -->
-{% if imageName %}
-    <div class="card" style="width: 18rem;">
-        <img src={{imageSrc}} class="card-img-top">
-    </div>
-
-    <form action="/resize-image" method="post">
-        <p><b>Resize size:</b></p>
-        <div class="mb-3">
-            <label for="height">Height</label>
-            <input required type="number" id="height" name="height" min="1">
-            <label for="width">Width</label>
-            <input required type="number" id="width" name="width" min="1">
-        </div>
-        <div class="mb-3">
-            <input type="text" class="visually-hidden" name="image" value={{imageName}}>
-        </div>
-        <div class="mb-3">
-            <input class="btn btn-primary" type="submit" value="Resize Image">
-        </div>
-    </form>
+{% if error %}
+<div class="alert alert-danger" role="alert">
+    {{error}}
+</div>
 {% endif %}
 
 {% endblock %}

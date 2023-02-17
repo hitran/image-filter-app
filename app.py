@@ -1,70 +1,68 @@
-import os
-from flask import Flask, render_template, request, url_for, send_from_directory, flash, redirect
+from flask import Flask, render_template, request, send_from_directory, redirect, url_for
 from werkzeug.utils import secure_filename
-from helpers import allowed_file
 from PIL import Image
-
-UPLOAD_FOLDER = './uploads'
-ALLOWED_EXTENSIONS = ['jpeg', 'png', 'jpg']
-THUMBNAIL_SIZE = (128, 128)
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+import os
 
 app = Flask(__name__)
 
+UPLOAD_FOLDER = './uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-
-@app.route("/", methods=["GET", "POST"])
+@app.route('/', methods=["GET", "POST"])
 def index():
     if request.method == "GET":
         return render_template("index.html")
     else:
+        file = request.files['image']
+        filename = secure_filename(file.filename)
 
-        # Check if the post request has the file part
-        if 'imgFile' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
+        # Create an uploads folder if that folder doesn't exist
+        if not os.path.exists(app.config['UPLOAD_FOLDER']):
+            os.makedirs(app.config['UPLOAD_FOLDER'].rsplit("/")[1])
         
-        imgFile = request.files['imgFile']
+        imageSrc = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(imageSrc)
 
-        # If user doesn't select a file, the browser submits an empty file without a filename
-        if imgFile.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        
-        img_url =''
-        if imgFile and allowed_file(imgFile.filename, ALLOWED_EXTENSIONS):
-            filename = secure_filename(imgFile.filename)
-            imgFile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            img_url = url_for('download_file', name=filename)
+        return render_template("index.html", imageName = filename, imageSrc = imageSrc)
 
-        print(f"OS.PATH : {os.path.join(app.config['UPLOAD_FOLDER'], filename)}")
+@app.route('/uploads/<filename>')
+def send_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-        return render_template("index.html", img_url = img_url)
+@app.route('/resize-image', methods=["GET", "POST"])
+def resize_image():
 
-
-@app.route('/uploads/<name>')
-def download_file(name):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], name)
-
-
-@app.route('/thumbnail', methods=["GET", "POST"])
-def thumbnail():
     if request.method == "POST":
-        img_url = request.form.get("image")
-        target = "." + img_url
 
-        with Image.open(target) as im:
+        # Check if values exists:
+        if not request.form.get("width"):
+            return "Missing Width Input"
 
-            # Create a thumbnail image
-            im.thumbnail(THUMBNAIL_SIZE)
-            
-            # Naming the end file
-            names = img_url.replace("/uploads/", "").rsplit(".")
-            thumbnail_name = names[0] + "_thumbnail." + names[1]
-            
-            # Save image to uploads folder
-            im.save(os.path.join(app.config['UPLOAD_FOLDER'], thumbnail_name))
+        if not request.form.get("height"):
+            return "Missing Height Input"
         
-        return download_file(thumbnail_name)
+        if not request.form.get("image"):
+            return "No file received"
+        
+        width = request.form.get("width")
+        height = request.form.get("height")
+        filename = secure_filename(request.form.get("image"))
+        
+        img_size = (int(height), int(width))
 
+        # open and process image:
+        with Image.open(os.path.join(app.config['UPLOAD_FOLDER'],filename)) as image:
+            image.thumbnail(img_size)
+            
+            # make sure uploads folder exists
+            if not os.path.exists(app.config['UPLOAD_FOLDER']):
+                os.makedirs(app.config['UPLOAD_FOLDER'])
+            
+            thumbnail_filename = f"{height}x{width}_{filename}"
+            image.save(os.path.join(app.config['UPLOAD_FOLDER'], thumbnail_filename))
+        return send_file(thumbnail_filename)
+    else:
+        return redirect("/")
+
+if __name__ == '__main__':
+    app.run(debug=True)

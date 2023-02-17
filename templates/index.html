@@ -1,24 +1,38 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    <!-- Upload input  -->
-    <form action="/" method="post" enctype="multipart/form-data"> 
-        <div class="mb-3">
-            <label for="imgFile" class="form-label">Upload Your Image</label>
-            <input class="form-control form-control-lg" name="imgFile" id="imgFile" type="file">
-        </div>
-        <button class="btn btn-primary" type="submit">Upload</button>
-    </form>
-    <!-- Show the uploaded image -->
-    {% if img_url %}
-    <div class="card" style="width: 18rem;">
-        <img src={{img_url}} class="card-img-top">
+<h1 class="">Image Processing Tool</h1>
+<form action="/" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label for="image" class="form-label">Upload Image</label>
+        <input class="form-control" id="image" name="image" type="file">
     </div>
-    
-    <form action="/thumbnail" method="post">
-        <button type="submit" name="thumbnail">Get Thumbnail</button>
-        <input type="text" class="hidden" name="image" value="{{img_url}}">
+    <div class="mb-3">
+        <input class="btn btn-primary" type="submit" value="Upload">
+    </div>
+</form>
+
+<!-- Display image if image is uploaded -->
+{% if imageName %}
+    <div class="card" style="width: 18rem;">
+        <img src={{imageSrc}} class="card-img-top">
+    </div>
+
+    <form action="/resize-image" method="post">
+        <p><b>Resize size:</b></p>
+        <div class="mb-3">
+            <label for="height">Height</label>
+            <input required type="number" id="height" name="height" min="1">
+            <label for="width">Width</label>
+            <input required type="number" id="width" name="width" min="1">
+        </div>
+        <div class="mb-3">
+            <input type="text" class="visually-hidden" name="image" value={{imageName}}>
+        </div>
+        <div class="mb-3">
+            <input class="btn btn-primary" type="submit" value="Resize Image">
+        </div>
     </form>
-    {% endif %}
+{% endif %}
 
 {% endblock %}

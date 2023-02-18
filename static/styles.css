@@ -1,14 +1,9 @@
 body {
     box-sizing: border-box;
-    overflow: hidden;
 }
 
 .container {
-    height: 100vh;
-}
-
-form {
-    min-height: 50%;
+    height: calc(100vh - 60px);
 }
 
 .uploaded-image {
@@ -18,6 +13,6 @@ form {
     margin: auto;
 }
 
-.image-snippet {
-    margin-top: 100px;
+.info {
+    margin-bottom: 5px;
 }

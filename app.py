@@ -1,17 +1,22 @@
+import os
 from flask import Flask, render_template, request, send_from_directory, redirect, url_for
 from werkzeug.utils import secure_filename
 from PIL import Image
-import os
+from helpers import allowed_file
+from constants import ACTION_LIST, ALLOWED_EXTENSIONS, UPLOAD_FOLDER
 
 app = Flask(__name__)
 
-UPLOAD_FOLDER = './uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg']
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
+
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    return render_template("index.html", error = "File is too large!")
 
 @app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template("index.html", actions = ACTION_LIST)
 
 @app.route('/uploads/<filename>')
 def send_file(filename):
@@ -21,21 +26,32 @@ def send_file(filename):
 def upload():
     if request.method == "POST":
         
+        file = request.files['image']
         # Check if file exists
-        if not request.files['image']:
+        if not file:
             return render_template("index.html", error = "No file received")
         
-        file = request.files['image']
-        filename = secure_filename(file.filename)
+        if file and allowed_file(file.filename, ALLOWED_EXTENSIONS):
 
-        # Create an uploads folder if that folder doesn't exist
-        if not os.path.exists(app.config['UPLOAD_FOLDER']):
-            os.makedirs(app.config['UPLOAD_FOLDER'].rsplit("/")[1])
-        
-        imageSrc = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(imageSrc)
+            filename = secure_filename(file.filename)
 
-        return render_template("resize_image.html", imageName = filename, imageSrc = imageSrc)
+            # Create an uploads folder if that folder doesn't exist
+            if not os.path.exists(app.config['UPLOAD_FOLDER']):
+                os.makedirs(app.config['UPLOAD_FOLDER'].rsplit("/")[1])
+            
+            imageSrc = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(imageSrc)
+
+            action = request.form.get('action')
+            if not any(item["value"] == action for item in ACTION_LIST):
+                return render_template("index.html", error="Invalid action")
+
+            for item in ACTION_LIST:
+                if action == item["value"]:
+                    return render_template(item["html"], imageName = filename, imageSrc = imageSrc)
+
+        elif not allowed_file(file.filename, ALLOWED_EXTENSIONS):
+            return render_template("index.html", error = "Invalid file type")
     else:
         return redirect("/")
 
@@ -75,6 +91,14 @@ def resize_image():
         return send_file(thumbnail_filename)
     else:
         return redirect("/")
+
+
+@app.route("/filter-image", methods=["GET", "POST"])
+def filter_image(imageName, imageSrc):
+    if request.method == "GET":
+        return redirect("/")
+    else:
+        return render_template("filter-image.html")
 
 if __name__ == '__main__':
     app.run(debug=True)

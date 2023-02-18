@@ -1,24 +1,35 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    <!-- Upload input  -->
-    <form action="/" method="post" enctype="multipart/form-data"> 
-        <div class="mb-3">
-            <label for="imgFile" class="form-label">Upload Your Image</label>
-            <input class="form-control form-control-lg" name="imgFile" id="imgFile" type="file">
+    <div class="text-center">
+        <h1 class="mb-2">Upload Your Image</h1>
+        <p class="info">Accepted files: PNG, JPG, JPEG</p>
+        <p class="mb-3">File must not exceed 16MB</p>
+        
+        <!-- Show error if any -->
+        {% if error %}
+        <div class="text-danger">
+            <p><b>* {{error}}</b></p>
         </div>
-        <button class="btn btn-primary" type="submit">Upload</button>
-    </form>
-    <!-- Show the uploaded image -->
-    {% if img_url %}
-    <div class="card" style="width: 18rem;">
-        <img src={{img_url}} class="card-img-top">
+        {% endif %}
+
+        <!-- Form to get input from user -->
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <div class="mb-3 mx-auto">
+                <input class="form-control form-control-lg" id="image" name="image" type="file">
+            </div>
+            <div class="mb-3 mx-auto">
+                <select class="form-select form-select-lg" name="action" required>
+                    <option selected disabled>Please select an action</option>
+                    {% for action in actions %}
+                        <option value={{action.value}}>{{action.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <input class="btn btn-dark btn-lg" type="submit" value="Upload Image">
+            </div>
+        </form>
     </div>
-    
-    <form action="/thumbnail" method="post">
-        <button type="submit" name="thumbnail">Get Thumbnail</button>
-        <input type="text" class="hidden" name="image" value="{{img_url}}">
-    </form>
-    {% endif %}
 
 {% endblock %}

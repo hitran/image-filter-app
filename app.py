@@ -70,11 +70,11 @@ def resize_image():
         height = request.form.get("height")
         filename = secure_filename(request.form.get("image"))
         
-        (img_width, img_height) = (int(height), int(width))
+        img_size = (int(width), int(height))
 
         # open and process image:
         with Image.open(os.path.join(app.config['UPLOAD_FOLDER'],filename)) as image:
-            resized_image = image.resize((img_width, img_height))
+            resized_image = image.resize(img_size)
             
             # make sure uploads folder exists
             if not os.path.exists(app.config['UPLOAD_FOLDER']):

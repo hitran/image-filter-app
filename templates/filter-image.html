@@ -1,7 +1,14 @@
 {% extends "processing-image.html" %}
 
 {% block action %}
+
 <div>
     <h1>Filter Image goes here</h1>
+
+    <form action="/blur" method="post">
+        <input type="text" value="imgName" class="visually-hidden">
+        <button></button>
+    </form>
 </div>
+
 {% endblock %}

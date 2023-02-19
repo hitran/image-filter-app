@@ -2,34 +2,23 @@
 
 {% block body %}
     <div class="text-center">
-        <h1 class="mb-2">Upload Your Image</h1>
-        <p class="info">Accepted files: PNG, JPG, JPEG</p>
-        <p class="mb-3">File must not exceed 16MB</p>
-        
-        <!-- Show error if any -->
+        <!-- Upload input  -->
+        <h3 class="mb-3">Upload Your Image</h3>
+        <p>Accepted files: PNG, JPEG, JPG</p>
+        <p>File must not exceed 16MB</p>
         {% if error %}
         <div class="text-danger">
             <p><b>* {{error}}</b></p>
         </div>
         {% endif %}
 
-        <!-- Form to get input from user -->
-        <form action="/upload" method="post" enctype="multipart/form-data">
-            <div class="mb-3 mx-auto">
-                <input class="form-control form-control-lg" id="image" name="image" type="file">
-            </div>
-            <div class="mb-3 mx-auto">
-                <select class="form-select form-select-lg" name="action" required>
-                    <option selected disabled>Please select an action</option>
-                    {% for action in actions %}
-                        <option value={{action.value}}>{{action.name}}</option>
-                    {% endfor %}
-                </select>
+        <form action="/" method="post" enctype="multipart/form-data"> 
+            <div class="mb-3">
+                <input class="form-control form-control-lg" name="imgFile" id="imgFile" type="file">
             </div>
             <div>
-                <input class="btn btn-dark btn-lg" type="submit" value="Upload Image">
+                <button class="btn btn-dark" type="submit">Upload</button>
             </div>
         </form>
     </div>
-
 {% endblock %}

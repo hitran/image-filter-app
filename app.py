@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, send_from_directory, redirect
 from werkzeug.utils import secure_filename
 from PIL import Image
 from helpers import allowed_file
-from constants import ACTION_LIST, ALLOWED_EXTENSIONS, UPLOAD_FOLDER
+from constants import ALLOWED_EXTENSIONS, UPLOAD_FOLDER
 
 app = Flask(__name__)
 
@@ -16,7 +16,7 @@ def request_entity_too_large(error):
 
 @app.route('/')
 def index():
-    return render_template("index.html", actions = ACTION_LIST)
+    return render_template("index.html")
 
 @app.route('/uploads/<filename>')
 def send_file(filename):
@@ -41,14 +41,8 @@ def upload():
             
             imageSrc = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(imageSrc)
-
-            action = request.form.get('action')
-            if not any(item["value"] == action for item in ACTION_LIST):
-                return render_template("index.html", error="Invalid action")
-
-            for item in ACTION_LIST:
-                if action == item["value"]:
-                    return render_template(item["html"], imageName = filename, imageSrc = imageSrc)
+            
+            return render_template("resize-image.html", imageName = filename, imageSrc = imageSrc)
 
         elif not allowed_file(file.filename, ALLOWED_EXTENSIONS):
             return render_template("index.html", error = "Invalid file type")
@@ -76,29 +70,21 @@ def resize_image():
         height = request.form.get("height")
         filename = secure_filename(request.form.get("image"))
         
-        img_size = (int(height), int(width))
+        (img_width, img_height) = (int(height), int(width))
 
         # open and process image:
         with Image.open(os.path.join(app.config['UPLOAD_FOLDER'],filename)) as image:
-            image.thumbnail(img_size)
+            resized_image = image.resize((img_width, img_height))
             
             # make sure uploads folder exists
             if not os.path.exists(app.config['UPLOAD_FOLDER']):
                 os.makedirs(app.config['UPLOAD_FOLDER'])
             
-            thumbnail_filename = f"{width}x{height}_{filename}"
-            image.save(os.path.join(app.config['UPLOAD_FOLDER'], thumbnail_filename))
-        return send_file(thumbnail_filename)
+            resized_filename = f"{width}x{height}_{filename}"
+            resized_image.save(os.path.join(app.config['UPLOAD_FOLDER'], resized_filename))
+        return send_file(resized_filename)
     else:
         return redirect("/")
-
-
-@app.route("/filter-image", methods=["GET", "POST"])
-def filter_image(imageName, imageSrc):
-    if request.method == "GET":
-        return redirect("/")
-    else:
-        return render_template("filter-image.html")
 
 if __name__ == '__main__':
     app.run(debug=True)

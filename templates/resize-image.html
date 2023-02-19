@@ -3,17 +3,17 @@
 {% block action %}
     <!-- Form to get input from user -->
     <form action="/resize-image" method="post">
-        <h3 class="mb-3 text-center">Width x Height</h3>
-        <div class="mb-3 d-flex justify-content-between">
-            <input class="form-control form-control-md mx-1" required type="number" id="width" name="height" min="1">
-            <span><b>  X  </b></span>
-            <input class="form-control form-control-md mx-1" required type="number" id="height" name="width" min="1">
+        <h3 class="mb-3 text-center">(Width x Height)</h3>
+        <div class="mb-3 d-flex align-items-center justify-content-between">
+            <input class="form-control form-control-md mx-1" required type="number" id="width" name="width" min="1">
+            <span class="mx-3"><b>X</b></span>
+            <input class="form-control form-control-md mx-1" required type="number" id="height" name="height" min="1">
         </div>
         <div class="mb-3">
             <input type="text" class="visually-hidden" name="image" value={{imageName}}>
         </div>
         <div class="mb-3 text-center">
-            <input class="btn btn-dark btn-lg" type="submit" value="Generate Thumbnail">
+            <input class="btn btn-dark btn-lg" type="submit" value="Resize">
         </div>
     </form>
 {% endblock %}
